@@ -480,7 +480,8 @@ const OwnerDashboard = () => {
   // Calculations for KPI Cards
   const totalLotsCount = parkingLots.length;
   const approvedLotsCount = parkingLots.filter(l => l.status === 'APPROVED').length;
-  const pendingLotsCount = parkingLots.filter(l => l.status === 'PENDING_APPROVAL' || l.status === 'DRAFT').length;
+  const pendingLotsCount = parkingLots.filter(l => l.status === 'PENDING_APPROVAL').length;
+  const draftLotsCount = parkingLots.filter(l => l.status === 'DRAFT' || !l.status).length;
   const totalCapacitySum = parkingLots.reduce((acc, curr) => acc + (curr.totalSlots || 0), 0);
 
   // Selected Lot object if in slot management mode
@@ -544,17 +545,26 @@ const OwnerDashboard = () => {
               </button>
 
               <button
+                type="button"
                 onClick={loadOwnerLots}
                 title="Refresh listings"
-                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
+                className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 active:scale-90 active:bg-slate-600 text-slate-300 hover:text-white border border-slate-700 transition-all shadow-sm cursor-pointer"
               >
-                🔄
+                <svg
+                  className="w-4 h-4 transition-transform duration-500 hover:rotate-180 active:rotate-90 text-slate-300 hover:text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2.2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </button>
             </div>
           </div>
 
           {/* Quick Metrics KPI Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800/80">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5 mt-6 pt-6 border-t border-slate-800/80">
             <div className="bg-slate-800/50 backdrop-blur rounded-xl p-3.5 border border-slate-700/50">
               <div className="text-xs font-medium text-slate-400">Total Properties</div>
               <div className="text-2xl font-black text-white mt-0.5">{totalLotsCount}</div>
@@ -564,11 +574,15 @@ const OwnerDashboard = () => {
               <div className="text-2xl font-black text-emerald-400 mt-0.5">{approvedLotsCount}</div>
             </div>
             <div className="bg-slate-800/50 backdrop-blur rounded-xl p-3.5 border border-slate-700/50">
-              <div className="text-xs font-medium text-slate-400">Pending / Draft</div>
-              <div className="text-2xl font-black text-amber-400 mt-0.5">{pendingLotsCount}</div>
+              <div className="text-xs font-medium text-slate-400">Pending Review</div>
+              <div className="text-2xl font-black text-sky-400 mt-0.5">{pendingLotsCount}</div>
             </div>
             <div className="bg-slate-800/50 backdrop-blur rounded-xl p-3.5 border border-slate-700/50">
-              <div className="text-xs font-medium text-slate-400">Total Slot Capacity</div>
+              <div className="text-xs font-medium text-slate-400">Drafts</div>
+              <div className="text-2xl font-black text-amber-400 mt-0.5">{draftLotsCount}</div>
+            </div>
+            <div className="bg-slate-800/50 backdrop-blur rounded-xl p-3.5 border border-slate-700/50 col-span-2 sm:col-span-1">
+              <div className="text-xs font-medium text-slate-400">Total Slots</div>
               <div className="text-2xl font-black text-indigo-300 mt-0.5">{totalCapacitySum} slots</div>
             </div>
           </div>

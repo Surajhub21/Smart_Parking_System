@@ -6,9 +6,9 @@ const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault();
-    logout();
+    await logout();
     navigate('/');
   };
 
@@ -16,16 +16,14 @@ const Header = () => {
     <header className="site-header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
-          <div className="flex">
-            <Link to="/" className="brand-mark flex-shrink-0 text-xl font-semibold">
+          <div className="flex items-center">
+            <Link to="/" className="brand-mark flex-shrink-0 text-xl font-bold tracking-tight">
               Smart Parking Finder
             </Link>
           </div>
+
           <div className="w-full md:w-auto">
             <div className="flex flex-wrap items-center gap-1 md:ml-10 md:gap-2">
-              <Link to="/" className="nav-link px-3 py-2 rounded-md text-sm font-medium">
-                Home
-              </Link>
               {user ? (
                 <>
                   {user.role === 'ADMIN' ? (
@@ -48,6 +46,9 @@ const Header = () => {
                     </>
                   ) : (
                     <>
+                      <Link to="/" className="nav-link px-3 py-2 rounded-md text-sm font-medium">
+                        Find Parking
+                      </Link>
                       <Link to="/bookings" className="nav-link px-3 py-2 rounded-md text-sm font-medium">
                         My Bookings
                       </Link>
@@ -59,16 +60,19 @@ const Header = () => {
                       </Link>
                     </>
                   )}
-                  <button onClick={handleLogout} className="nav-link px-3 py-2 rounded-md text-sm font-medium">
+                  <button onClick={handleLogout} className="nav-link px-3 py-2 rounded-md text-sm font-medium cursor-pointer">
                     Logout
                   </button>
                 </>
               ) : (
                 <>
+                  <Link to="/" className="nav-link px-3 py-2 rounded-md text-sm font-medium">
+                    About Project
+                  </Link>
                   <Link to="/login" className="nav-link px-3 py-2 rounded-md text-sm font-medium">
                     Login
                   </Link>
-                  <Link to="/register" className="nav-link nav-link-strong px-3 py-2 rounded-md text-sm font-medium">
+                  <Link to="/register" className="nav-link nav-link-strong px-3 py-2 rounded-md text-sm font-medium shadow-sm">
                     Register
                   </Link>
                 </>

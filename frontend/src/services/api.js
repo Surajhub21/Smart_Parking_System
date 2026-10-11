@@ -37,32 +37,51 @@ export const normalizeParkingLot = (lot) => {
     amenities: amenitiesList.length > 0 ? amenitiesList : ['Covered', 'Security'],
     vehicleTypes: vehicleTypesList.length > 0 ? vehicleTypesList : ['Car', 'SUV'],
     distance: distanceKm != null ? parseFloat(distanceKm) : null,
-    status: lot.status || 'APPROVED',
-    slots: Array.isArray(lot.slots) ? lot.slots : []
+    status: lot.status || 'DRAFT',
+    rawAmenities: Array.isArray(lot.amenities) ? lot.amenities : [],
+    rawSupportedVehicles: Array.isArray(lot.supportedVehicles) ? lot.supportedVehicles : [],
+    contactEmail: lot.contactEmail || '',
+    contactPhone: lot.contactPhone || '',
+    images: Array.isArray(lot.images) ? lot.images : [],
+    statusReason: lot.statusReason || '',
+    createdAt: lot.createdAt || null,
+    updatedAt: lot.updatedAt || null,
+    currency: lot.currency || 'INR',
+    slots: Array.isArray(lot.slots) ? lot.slots.map(s => ({
+      id: s.id,
+      number: s.slotNumber || s.number || 'Slot',
+      slotNumber: s.slotNumber || s.number || 'Slot',
+      vehicleType: s.vehicleType || 'CAR',
+      status: s.status || 'FREE'
+    })) : []
   };
 };
 
 export const normalizeBooking = (b) => {
   if (!b) return null;
+  const ref = b.bookingReference || (b.id ? `BK-${String(b.id).slice(-6).toUpperCase()}` : 'BK-REF');
+  const lotName = b.parkingLotName || (b.parkingLot && b.parkingLot.name) || 'Kolkata Parking Facility';
+  const lotAddress = (b.parkingLot && b.parkingLot.address) || b.address || b.parkingLotAddress || 'Kolkata, West Bengal';
+
   return {
-    id: b.id || b.bookingReference,
-    bookingReference: b.bookingReference || b.id,
+    id: b.id || ref,
+    bookingReference: ref,
     parkingLotId: b.parkingLotId,
     parkingLot: {
       id: b.parkingLotId,
-      name: b.parkingLotName || (b.parkingLot && b.parkingLot.name) || 'Parking Lot',
-      address: (b.parkingLot && b.parkingLot.address) || ''
+      name: lotName,
+      address: lotAddress
     },
     slot: {
       number: b.slotNumber || (b.slot && b.slot.number) || 'A1'
     },
     slotNumber: b.slotNumber || (b.slot && b.slot.number) || 'A1',
     vehicleType: b.vehicleType || 'Car',
-    vehicleNumber: b.vehicleNumber || '',
+    vehicleNumber: b.vehicleNumber || 'WB-01-XXXX',
     startTime: b.startTime,
     endTime: b.endTime,
-    totalAmount: b.totalPrice != null ? b.totalPrice : (b.totalAmount != null ? b.totalAmount : 20.0),
-    status: b.status || 'ACTIVE',
+    totalAmount: b.totalPrice != null ? b.totalPrice : (b.totalAmount != null ? b.totalAmount : 30.0),
+    status: b.status || 'CONFIRMED',
     createdAt: b.createdAt || new Date().toISOString()
   };
 };
