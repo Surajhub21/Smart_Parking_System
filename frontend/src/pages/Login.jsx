@@ -16,10 +16,16 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await login(email, password);
-      navigate('/');
+      const user = await login(email, password);
+      if (user.role === 'ADMIN') {
+        navigate('/admin-dashboard');
+      } else if (user.role === 'OWNER') {
+        navigate('/owner-dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }

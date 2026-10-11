@@ -4,7 +4,9 @@ import {
   getAdminParkingLots,
   getAdminStats,
   getAdminUsers,
-  updateAdminUserStatus
+  updateAdminUserStatus,
+  approveAdminParkingLot,
+  rejectAdminParkingLot
 } from '../services/api';
 
 const formatCurrency = (value) =>
@@ -17,7 +19,9 @@ const statusClasses = {
   ACTIVE: 'bg-green-100 text-green-800',
   SUSPENDED: 'bg-red-100 text-red-800',
   PENDING: 'bg-yellow-100 text-yellow-800',
+  PENDING_APPROVAL: 'bg-blue-100 text-blue-800',
   APPROVED: 'bg-green-100 text-green-800',
+  REJECTED: 'bg-red-100 text-red-800',
   CONFIRMED: 'bg-blue-100 text-blue-800',
   CANCELLED: 'bg-gray-100 text-gray-800'
 };
@@ -82,6 +86,28 @@ const AdminDashboard = () => {
       setError(statusError.message || 'Unable to update the user status.');
     } finally {
       setUpdatingUserId(null);
+    }
+  };
+
+  const handleApproveLot = async (lotId) => {
+    try {
+      setError('');
+      await approveAdminParkingLot(lotId);
+      const lotsData = await getAdminParkingLots();
+      setParkingLots(lotsData);
+    } catch (approveErr) {
+      setError(approveErr.message || 'Unable to approve parking lot.');
+    }
+  };
+
+  const handleRejectLot = async (lotId) => {
+    try {
+      setError('');
+      await rejectAdminParkingLot(lotId, 'Rejected by platform admin');
+      const lotsData = await getAdminParkingLots();
+      setParkingLots(lotsData);
+    } catch (rejectErr) {
+      setError(rejectErr.message || 'Unable to reject parking lot.');
     }
   };
 
@@ -215,6 +241,7 @@ const AdminDashboard = () => {
                   <th className="px-3 py-3">Owner</th>
                   <th className="px-3 py-3">Slots</th>
                   <th className="px-3 py-3">Status</th>
+                  <th className="px-3 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -230,6 +257,24 @@ const AdminDashboard = () => {
                       <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusClasses[lot.status] || 'bg-gray-100 text-gray-800'}`}>
                         {lot.status}
                       </span>
+                    </td>
+                    <td className="px-3 py-4 text-right space-x-2">
+                      {lot.status !== 'APPROVED' && (
+                        <button
+                          onClick={() => handleApproveLot(lot.id)}
+                          className="px-3 py-1 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {lot.status !== 'REJECTED' && (
+                        <button
+                          onClick={() => handleRejectLot(lot.id)}
+                          className="px-3 py-1 text-xs font-medium bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

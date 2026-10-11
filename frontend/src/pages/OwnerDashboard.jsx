@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getOwnerParkingLots, createParkingLot, updateParkingLot, deleteParkingLot, getParkingLotSlots, createSlot, updateSlot, deleteSlot, getOwnerBookings } from '../services/api';
+import { getOwnerParkingLots, createParkingLot, updateParkingLot, deleteParkingLot, getParkingLotSlots, createSlot, updateSlot, deleteSlot, getOwnerBookings, submitParkingLotForApproval } from '../services/api';
 
 const OwnerDashboard = () => {
   const { user } = useAuth();
@@ -292,6 +292,18 @@ const OwnerDashboard = () => {
         setError('Failed to delete slot. Please try again.');
         console.error('Error deleting slot:', err);
       }
+    }
+  };
+  
+  const handleSubmitForApproval = async (lotId) => {
+    try {
+      setError('');
+      await submitParkingLotForApproval(lotId);
+      const updatedLots = await getOwnerParkingLots(user.id);
+      setParkingLots(updatedLots);
+    } catch (err) {
+      setError(err.message || 'Failed to submit parking lot for approval.');
+      console.error('Error submitting lot for approval:', err);
     }
   };
   
@@ -887,9 +899,19 @@ const OwnerDashboard = () => {
                     <div key={lot.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h2 className="text-xl font-bold text-gray-900 mb-2">
-                            {lot.name}
-                          </h2>
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h2 className="text-xl font-bold text-gray-900">
+                              {lot.name}
+                            </h2>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                              lot.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                              lot.status === 'PENDING_APPROVAL' ? 'bg-blue-100 text-blue-800' :
+                              lot.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {lot.status || 'DRAFT'}
+                            </span>
+                          </div>
                           <p className="text-gray-600 mb-2">
                             {lot.address}
                           </p>
@@ -926,6 +948,14 @@ const OwnerDashboard = () => {
                           </div>
                         </div>
                         <div className="ml-6 flex-shrink-0 space-y-3">
+                          {lot.status === 'DRAFT' && (
+                            <button
+                              onClick={() => handleSubmitForApproval(lot.id)}
+                              className="w-full px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 font-medium"
+                            >
+                              Submit for Approval
+                            </button>
+                          )}
                           <button
                             onClick={() => {
                               setEditLotForm({

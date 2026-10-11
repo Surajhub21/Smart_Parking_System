@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { addFavoriteLot, removeFavoriteLot, getFavoriteLots } from '../services/api';
 
 const FavoritesContext = createContext();
 
@@ -8,17 +9,43 @@ export const useFavorites = () => {
 
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState(() => {
-    // Load from localStorage
-    const saved = localStorage.getItem('favoriteParkingLotIds');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('favoriteParkingLotIds');
+      return saved ? JSON.parse(saved).map(String) : [];
+    } catch {
+      return [];
+    }
   });
 
+  // Try to load favorites from backend on mount
   useEffect(() => {
-    // Save to localStorage whenever favorites change
-    localStorage.setItem('favoriteParkingLotIds', JSON.stringify(favorites));
+    let isMounted = true;
+    const syncWithBackend = async () => {
+      try {
+        const backendFavs = await getFavoriteLots();
+        if (isMounted && Array.isArray(backendFavs) && backendFavs.length > 0) {
+          const ids = backendFavs.map(f => String(f.parkingLotId || f.id || f));
+          setFavorites(ids);
+        }
+      } catch {
+        // Not authenticated or offline
+      }
+    };
+    syncWithBackend();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('favoriteParkingLotIds', JSON.stringify(favorites));
+    } catch (e) {
+      console.warn('LocalStorage save failed:', e);
+    }
   }, [favorites]);
 
-  const addFavorite = (lotId) => {
+  const addFavorite = async (lotId) => {
     const idStr = String(lotId);
     setFavorites(prev => {
       const stringified = prev.map(String);
@@ -27,11 +54,23 @@ export const FavoritesProvider = ({ children }) => {
       }
       return stringified;
     });
+
+    try {
+      await addFavoriteLot(idStr);
+    } catch (err) {
+      console.warn('Backend favorite sync warning:', err.message);
+    }
   };
 
-  const removeFavorite = (lotId) => {
+  const removeFavorite = async (lotId) => {
     const idStr = String(lotId);
     setFavorites(prev => prev.filter(id => String(id) !== idStr));
+
+    try {
+      await removeFavoriteLot(idStr);
+    } catch (err) {
+      console.warn('Backend favorite remove warning:', err.message);
+    }
   };
 
   const isFavorite = (lotId) => {

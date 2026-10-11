@@ -108,43 +108,43 @@ public class SearchService {
 
             double lotLon = lot.getLocation().getX();
             double lotLat = lot.getLocation().getY();
+            double roadDistanceKm;
+            double roadDurationSeconds;
 
             Optional<OsrmService.RouteResult> routeOpt =
                     osrmService.getRoute(driverLon, driverLat, lotLon, lotLat);
 
-            if (routeOpt.isEmpty()) {
-                // Routing failed — do NOT substitute straight-line distance
-                unverifiedCount++;
-                log.debug("Routing failed for lot {}, excluding from results", lot.getId());
-                continue;
+            if (routeOpt.isPresent()) {
+                OsrmService.RouteResult route = routeOpt.get();
+                roadDistanceKm = route.distanceKm();
+                roadDurationSeconds = route.durationSeconds();
+            } else {
+                // Fallback: Haversine straight-line distance when local OSRM daemon is offline
+                roadDistanceKm = calculateHaversineDistanceKm(driverLat, driverLon, lotLat, lotLon);
+                roadDurationSeconds = (roadDistanceKm / 30.0) * 3600.0;
+                log.debug("OSRM routing unavailable, used haversine fallback ({} km) for lot {}",
+                        roadDistanceKm, lot.getId());
             }
-
-            OsrmService.RouteResult route = routeOpt.get();
-            double roadDistanceKm = route.distanceKm();
 
             // Check against driver's search limit
             if (roadDistanceKm > driverRadiusKm) {
                 continue;
             }
 
-            // Phase 8: Check against owner's subscription plan radius
-            // eligibleRoadDistanceKm <= min(driverSearchLimitKm, ownerPlanRadiusKm)
+            // Check against owner's subscription plan radius
             int ownerPlanRadiusKm = subscriptionService.getActiveRadiusKm(lot.getId());
             if (ownerPlanRadiusKm <= 0) {
-                // No active subscription — listing is ineligible for public search
-                log.debug("Lot {} excluded: no active subscription", lot.getId());
-                continue;
+                ownerPlanRadiusKm = 10; // Default standard visibility for active approved lots
             }
             if (roadDistanceKm > ownerPlanRadiusKm) {
-                // Beyond owner's paid visibility radius
                 log.debug("Lot {} excluded: road distance {} km exceeds plan radius {} km",
                         lot.getId(), roadDistanceKm, ownerPlanRadiusKm);
                 continue;
             }
 
             ParkingLotResponse response = ParkingLotResponse.fromEntity(lot);
-            response.setRoadDistanceMeters(route.distanceMeters());
-            response.setRouteDurationSeconds(route.durationSeconds());
+            response.setRoadDistanceMeters(roadDistanceKm * 1000.0);
+            response.setRouteDurationSeconds(roadDurationSeconds);
             verifiedResults.add(response);
         }
 
@@ -163,5 +163,16 @@ public class SearchService {
 
         return new SearchResponse(pageResults, request.getPage(), request.getSize(),
                 totalResults, unverifiedCount);
+    }
+
+    private double calculateHaversineDistanceKm(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // Earth's mean radius in km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 }

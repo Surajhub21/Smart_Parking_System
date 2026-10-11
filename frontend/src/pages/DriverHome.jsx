@@ -53,9 +53,14 @@ const DriverHome = () => {
     return () => clearTimeout(fallbackTimer);
   }, []);
 
-  // Fetch parking lots in real-time when radius changes
+  // Fetch parking lots in real-time when location or radius changes
   const { data: lots, loading: realtimeLoading, error: realtimeError } = useRealtime(
-    () => fetchParkingLots({ maxDistance: searchRadius }),
+    () => fetchParkingLots({
+      latitude: searchLocation ? searchLocation.lat : 40.7128,
+      longitude: searchLocation ? searchLocation.lng : -74.0060,
+      radiusKm: searchRadius,
+      maxDistance: searchRadius
+    }),
     5000 // Update every 5 seconds
   );
 

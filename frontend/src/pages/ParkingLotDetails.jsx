@@ -42,6 +42,8 @@ const ParkingLotDetails = () => {
 
   const handleBookSlot = (slot) => {
     setBookingForm({
+      slotId: slot.id,
+      slotNumber: slot.number,
       vehicleType: slot.vehicleType,
       startTime: new Date().toISOString().slice(0, 16), // Local datetime format
       endTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString().slice(0, 16) // 2 hours later
@@ -95,12 +97,15 @@ const ParkingLotDetails = () => {
       // Create booking
       const bookingData = {
         parkingLotId: parkingLot.id,
+        slotId: bookingForm.slotId,
+        durationHours: Number(durationHours),
         parkingLot: {
           id: parkingLot.id,
           name: parkingLot.name,
           address: parkingLot.address
         },
         slot: {
+          id: bookingForm.slotId,
           number: bookingForm.slotNumber || 'A1'
         },
         slotNumber: bookingForm.slotNumber || 'A1',
