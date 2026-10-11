@@ -48,7 +48,7 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/search/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/parking/lots/public/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/parking/lots/public", "/api/parking/lots/public/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/parking/lots/public/*/slots").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/parking/lots/public/*/availability").permitAll()
                 // Actuator health

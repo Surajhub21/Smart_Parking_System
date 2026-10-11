@@ -144,8 +144,12 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserSummary>>> getAllUsers() {
         List<UserSummary> users = userRepository.findAll().stream()
-                .map(u -> new UserSummary(u.getId(), u.getEmail(), u.getName(),
-                        u.getRoles().toString(), u.isActive()))
+                .map(u -> {
+                    String roleStr = (u.getRoles() != null && !u.getRoles().isEmpty())
+                            ? u.getRoles().stream().map(Enum::name).collect(java.util.stream.Collectors.joining(", "))
+                            : "DRIVER";
+                    return new UserSummary(u.getId(), u.getEmail(), u.getName(), roleStr, u.isActive());
+                })
                 .toList();
         return ResponseEntity.ok(ApiResponse.success(users));
     }
@@ -157,8 +161,10 @@ public class AdminController {
     public ResponseEntity<ApiResponse<UserSummary>> getUserById(@PathVariable String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        UserSummary summary = new UserSummary(user.getId(), user.getEmail(), user.getName(),
-                user.getRoles().toString(), user.isActive());
+        String roleStr = (user.getRoles() != null && !user.getRoles().isEmpty())
+                ? user.getRoles().stream().map(Enum::name).collect(java.util.stream.Collectors.joining(", "))
+                : "DRIVER";
+        UserSummary summary = new UserSummary(user.getId(), user.getEmail(), user.getName(), roleStr, user.isActive());
         return ResponseEntity.ok(ApiResponse.success(summary));
     }
 

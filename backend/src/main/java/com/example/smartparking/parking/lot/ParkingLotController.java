@@ -131,6 +131,17 @@ public class ParkingLotController {
     // ======================== PUBLIC ENDPOINTS ========================
 
     /**
+     * Public list of all approved parking lots.
+     */
+    @GetMapping("/api/parking/lots/public")
+    public ResponseEntity<ApiResponse<List<ParkingLotResponse>>> getPublicApproved() {
+        List<ParkingLotResponse> lots = service.getByStatus(ListingStatus.APPROVED).stream()
+                .map(ParkingLotResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(lots));
+    }
+
+    /**
      * Public view of an approved parking lot (for drivers browsing).
      */
     @GetMapping("/api/parking/lots/public/{id}")
