@@ -11,6 +11,8 @@ import BookingHistory from './pages/BookingHistory';
 import OwnerDashboard from './pages/OwnerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Favorites from './pages/Favorites';
+import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 
@@ -32,6 +34,8 @@ function App() {
                 <Route path="/owner-dashboard" element={<OwnerDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/favorites" element={<Favorites />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
             <Footer />

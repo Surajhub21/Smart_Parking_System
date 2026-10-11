@@ -19,20 +19,24 @@ export const FavoritesProvider = ({ children }) => {
   }, [favorites]);
 
   const addFavorite = (lotId) => {
+    const idStr = String(lotId);
     setFavorites(prev => {
-      if (!prev.includes(lotId)) {
-        return [...prev, lotId];
+      const stringified = prev.map(String);
+      if (!stringified.includes(idStr)) {
+        return [...stringified, idStr];
       }
-      return prev;
+      return stringified;
     });
   };
 
   const removeFavorite = (lotId) => {
-    setFavorites(prev => prev.filter(id => id !== lotId));
+    const idStr = String(lotId);
+    setFavorites(prev => prev.filter(id => String(id) !== idStr));
   };
 
   const isFavorite = (lotId) => {
-    return favorites.includes(lotId);
+    const idStr = String(lotId);
+    return favorites.some(id => String(id) === idStr);
   };
 
   const value = {

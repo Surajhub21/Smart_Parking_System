@@ -6,6 +6,7 @@ import { useFavorites } from '../context/FavoritesContext';
 
 const ParkingLotDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [parkingLot, setParkingLot] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -88,13 +89,25 @@ const ParkingLotDetails = () => {
         return;
       }
 
+      const durationHours = Math.max(1, Math.ceil((endTime - startTime) / (1000 * 60 * 60)));
+      const totalAmount = durationHours * (parkingLot.pricePerHour || 5.0);
+
       // Create booking
       const bookingData = {
         parkingLotId: parkingLot.id,
-        slotNumber: bookingForm.slotNumber || 'A1', // In a real app, this would come from slot selection
+        parkingLot: {
+          id: parkingLot.id,
+          name: parkingLot.name,
+          address: parkingLot.address
+        },
+        slot: {
+          number: bookingForm.slotNumber || 'A1'
+        },
+        slotNumber: bookingForm.slotNumber || 'A1',
         vehicleType: bookingForm.vehicleType,
         startTime: bookingForm.startTime,
-        endTime: bookingForm.endTime
+        endTime: bookingForm.endTime,
+        totalAmount
       };
 
       const booking = await createBooking(bookingData);

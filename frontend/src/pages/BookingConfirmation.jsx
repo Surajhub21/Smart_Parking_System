@@ -166,7 +166,7 @@ const BookingConfirmation = () => {
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">Status:</span>
                   <span className={`text-sm font-medium ${
-                    booking.status === 'ACTIVE' 
+                    booking.status === 'ACTIVE' || booking.status === 'CONFIRMED'
                       ? 'text-green-600' 
                       : booking.status === 'CANCELLED' 
                         ? 'text-red-600' 

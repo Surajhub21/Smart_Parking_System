@@ -177,7 +177,7 @@ const BookingHistory = () => {
                     <div>
                       <span className="text-gray-500">Booking Date:</span>
                       <p className="font-medium">
-                        {new Date(booking.createdAt).toLocaleDateString()}
+                        {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'N/A'}
                       </p>
                     </div>
                     <div>

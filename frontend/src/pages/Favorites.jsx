@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
 import { fetchParkingLotById } from '../services/api';
 
 const Favorites = () => {
+  const navigate = useNavigate();
   const { favorites, removeFavorite } = useFavorites();
   const [favoriteLots, setFavoriteLots] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -63,7 +65,7 @@ const Favorites = () => {
             You haven't saved any favorite parking lots yet.
           </p>
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
             className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
           >
             Browse Parking Lots
@@ -115,7 +117,7 @@ const Favorites = () => {
                 <div className="mt-4">
                   <button
                     onClick={() => {
-                      window.location.href = `/parking-lot/${lot.id}`;
+                      navigate(`/parking-lot/${lot.id}`);
                     }}
                     className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
                   >

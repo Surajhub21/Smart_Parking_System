@@ -102,9 +102,16 @@ export const createBooking = async (bookingData) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
   // Mock successful booking
   return {
-    id: Math.floor(Math.random() * 1000),
+    id: Math.floor(Math.random() * 1000) + 1,
     ...bookingData,
-    status: "CONFIRMED",
+    parkingLot: bookingData.parkingLot || {
+      id: bookingData.parkingLotId || 1,
+      name: "Central Parking Garage",
+      address: "123 Main St, Downtown"
+    },
+    slot: bookingData.slot || { number: bookingData.slotNumber || "A1" },
+    totalAmount: bookingData.totalAmount !== undefined ? bookingData.totalAmount : 20.00,
+    status: "ACTIVE",
     createdAt: new Date().toISOString()
   };
 };
@@ -126,10 +133,12 @@ export const getUserBookings = async (userId) => {
         address: "123 Main St, Downtown"
       },
       slot: { number: "A1" },
+      vehicleType: "Car",
       startTime: "2026-10-11T10:00:00Z",
       endTime: "2026-10-11T14:00:00Z",
       totalAmount: 20.00,
-      status: "ACTIVE"
+      status: "ACTIVE",
+      createdAt: "2026-10-11T09:30:00Z"
     }
   ];
 };

@@ -16,32 +16,41 @@ const parkingIcon = new L.Icon({
 });
 
 const DriverHome = () => {
+  const navigate = useNavigate();
   const [parkingLots, setParkingLots] = useState([]);
   const [searchLocation, setSearchLocation] = useState(null);
   const [searchRadius, setSearchRadius] = useState(5); // Default 5 km
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Get user's current location
+  // Get user's current location with safety fallback
   useEffect(() => {
+    let fallbackTimer = setTimeout(() => {
+      setSearchLocation((prev) => prev || { lat: 40.7128, lng: -74.0060 });
+    }, 4000);
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          clearTimeout(fallbackTimer);
           setSearchLocation({
             lat: position.coords.latitude,
             lng: position.coords.longitude
           });
         },
         (error) => {
-          console.error('Geolocation error:', error);
-          // Use a default location if geolocation fails
-          setSearchLocation({ lat: 40.7128, lng: -74.0060 }); // New York City
-        }
+          console.warn('Geolocation unavailable, using default coordinates:', error);
+          clearTimeout(fallbackTimer);
+          setSearchLocation({ lat: 40.7128, lng: -74.0060 }); // Default
+        },
+        { timeout: 4000, maximumAge: 60000 }
       );
     } else {
-      // Geolocation not supported
-      setSearchLocation({ lat: 40.7128, lng: -74.0060 }); // New York City
+      clearTimeout(fallbackTimer);
+      setSearchLocation({ lat: 40.7128, lng: -74.0060 }); // Default
     }
+
+    return () => clearTimeout(fallbackTimer);
   }, []);
 
   // Fetch parking lots in real-time when radius changes
@@ -229,7 +238,11 @@ const DriverHome = () => {
               ) : (
                 <div className="space-y-4">
                   {parkingLots.map((lot) => (
-                    <div key={lot.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div
+                      key={lot.id}
+                      onClick={() => navigate('/parking-lot/' + lot.id)}
+                      className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900 mb-1">

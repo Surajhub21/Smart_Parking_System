@@ -1,18 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const useRealtime = (callback, intervalMs) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const callbackRef = useRef(callback);
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
   useEffect(() => {
     let isMounted = true;
     let timerId = null;
 
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchData = async (isInitial = false) => {
+      if (isInitial) {
+        setLoading(true);
+      }
       try {
-        const result = await callback();
+        const result = await callbackRef.current();
         if (isMounted) {
           setData(result);
           setError(null);
@@ -20,7 +27,6 @@ const useRealtime = (callback, intervalMs) => {
       } catch (err) {
         if (isMounted) {
           setError(err);
-          setData(null);
         }
       } finally {
         if (isMounted) {
@@ -29,15 +35,17 @@ const useRealtime = (callback, intervalMs) => {
       }
     };
 
-    fetchData(); // call immediately
+    fetchData(true); // initial fetch
 
-    timerId = setInterval(fetchData, intervalMs);
+    timerId = setInterval(() => {
+      fetchData(false);
+    }, intervalMs);
 
     return () => {
       isMounted = false;
       clearInterval(timerId);
     };
-  }, [callback, intervalMs]);
+  }, [intervalMs]);
 
   return { data, loading, error };
 };
