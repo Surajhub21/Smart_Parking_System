@@ -1,0 +1,25 @@
+# ============================================================
+# Smart Parking Finder — Test Configuration
+# ============================================================
+
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://admin:admin123@localhost:27017/smart_parking_test?authSource=admin}
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+
+server:
+  port: 0
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173
+  osrm:
+    base-url: http://localhost:5000
+  search:
+    straight-line-buffer-multiplier: 1.5
+    max-straight-line-buffer-meters: 10000

@@ -1,0 +1,115 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: "Inter", "Segoe UI", sans-serif;
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background: #eef2ff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  min-width: 320px;
+  background: #eef2ff;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(236, 72, 153, 0.2), transparent 25rem),
+    radial-gradient(circle at 92% 14%, rgba(14, 165, 233, 0.2), transparent 28rem),
+    linear-gradient(135deg, #eef2ff 0%, #fdf2f8 48%, #ecfeff 100%);
+}
+
+.app-shell {
+  background:
+    radial-gradient(circle at 15% 45%, rgba(129, 140, 248, 0.12), transparent 22rem),
+    transparent;
+}
+
+.site-header {
+  position: relative;
+  z-index: 10;
+  color: white;
+  background: linear-gradient(110deg, #312e81 0%, #4f46e5 45%, #c026d3 100%);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.25);
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  color: white;
+  letter-spacing: -0.03em;
+}
+
+.brand-mark::before {
+  content: "P";
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.6rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  color: #4338ca;
+  background: linear-gradient(145deg, #fef08a, #fb7185);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.nav-link-strong {
+  color: #312e81;
+  background: #fef08a;
+}
+
+.nav-link-strong:hover {
+  color: #312e81;
+  background: #fde047;
+}
+
+.site-footer {
+  background: linear-gradient(110deg, #1e1b4b, #312e81, #581c87);
+  box-shadow: 0 -8px 24px rgba(49, 46, 129, 0.12);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease,
+    box-shadow 150ms ease, transform 150ms ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.4);
+  outline-offset: 2px;
+}
+
+.leaflet-container {
+  min-height: 32rem;
+  width: 100%;
+  z-index: 0;
+}

@@ -1,0 +1,62 @@
+# ============================================================
+# Smart Parking Finder — Application Configuration
+# ============================================================
+
+spring:
+  application:
+    name: smart-parking
+
+  # ---- MongoDB ----
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://admin:admin123@localhost:27017/smart_parking?authSource=admin}
+
+  # ---- Jackson ----
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+    time-zone: UTC
+
+  # ---- CORS (dev) ----
+  # Configured programmatically in WebConfig
+
+# ---- Server ----
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+# ---- Actuator ----
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ---- OpenAPI ----
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+# ---- Application Custom Properties ----
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  osrm:
+    base-url: ${OSRM_BASE_URL:http://localhost:5000}
+  search:
+    # Straight-line buffer multiplier for geospatial pre-filter (e.g., 1.5x road-distance limit)
+    straight-line-buffer-multiplier: ${SEARCH_BUFFER_MULTIPLIER:1.5}
+    # Maximum straight-line buffer in meters
+    max-straight-line-buffer-meters: ${SEARCH_MAX_BUFFER_METERS:10000}
